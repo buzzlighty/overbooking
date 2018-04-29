@@ -28,7 +28,7 @@ public class BookingController implements BookingApi {
     @RequestMapping(path = "/booking", method = RequestMethod.POST)
     public void book(@RequestBody BookingDto booking) {
         if (booking.getArrivalDate().after(booking.getDepartureDate())) {
-            throw new WrongInputException("Arriavl date should be before departure date");
+            throw new WrongInputException("Arrival date should be before departure date");
         }
         bookingService.createBooking(booking);
     }

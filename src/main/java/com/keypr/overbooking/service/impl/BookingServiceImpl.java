@@ -52,7 +52,7 @@ public class BookingServiceImpl implements BookingService {
      *
      */
     @Override
-    public void createBooking(BookingDto bookingDto) { //todo unit test
+    public void createBooking(BookingDto bookingDto) {
         LocalDate from = toLocalDate(bookingDto.getArrivalDate());
         LocalDate to = toLocalDate(bookingDto.getDepartureDate());
 
