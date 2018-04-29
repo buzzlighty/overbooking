@@ -24,6 +24,7 @@ cd <project-dir>/compose
 This will pull 3 containers (service, mongo & redis).
 
 Access service on http://localhost:8080/app
+
 Access Swagger API on http://localhost:8080/app/swagger
 
 # Run API tests
