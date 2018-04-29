@@ -28,8 +28,8 @@ public class BookingController implements BookingApi {
     @Override
     @RequestMapping(path = "/booking", method = RequestMethod.POST)
     public void book(@RequestBody BookingDto booking) {
-        if (!DateHelper.after(booking.getArrivalDate(), booking.getDepartureDate())) {
-            throw new WrongInputException("Arrival date should be after departure date");
+        if(!DateHelper.rangeIn(booking.getArrivalDate(), booking.getDepartureDate(), 31, 0)){
+            throw new WrongInputException("Range between arrival and departure can't be more then 30 days and less then 1");
         }
         bookingService.createBooking(booking);
     }

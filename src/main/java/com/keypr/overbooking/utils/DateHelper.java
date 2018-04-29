@@ -29,8 +29,9 @@ public class DateHelper {
         return dateRange.stream();
     }
 
-    public static boolean after(LocalDate from, LocalDate to) {
-        return to.isEqual(from) || to.isAfter(from);
+    public static boolean rangeIn(LocalDate from, LocalDate to, long max, long min) {
+        long range = ChronoUnit.DAYS.between(from, to);
+        return range >= min && range < max;
     }
 
     private Stream<LocalDate> stream() {

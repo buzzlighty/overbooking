@@ -7,6 +7,7 @@ import com.keypr.overbooking.dao.document.Reservation;
 import com.keypr.overbooking.dto.BookingDto;
 import com.keypr.overbooking.dto.ConfigDto;
 import com.keypr.overbooking.utils.DateHelper;
+import org.apache.tomcat.jni.Local;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,9 +18,14 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.concurrent.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -67,7 +73,7 @@ public class BookingApiTest {
 
         BookingDto oneDay = new BookingDto("test", "test", LocalDate.now(), LocalDate.now());
 
-        assertThat(restTemplate.postForEntity(serviceUrl, oneDay, null).getStatusCode())
+        assertThat(makeBooking(oneDay).getStatusCode())
                 .as("On empty config should return 400 (NOT_FOUND)")
                 .isEqualTo(HttpStatus.NOT_FOUND);
     }
@@ -76,7 +82,7 @@ public class BookingApiTest {
     public void booking() {
         BookingDto oneDay = new BookingDto("test", "test", LocalDate.now(), LocalDate.now());
 
-        assertThat(restTemplate.postForEntity(serviceUrl, oneDay, null).getStatusCode())
+        assertThat(makeBooking(oneDay).getStatusCode())
                 .as("On present config should return 200")
                 .isEqualTo(HttpStatus.OK);
 
@@ -92,13 +98,55 @@ public class BookingApiTest {
     }
 
     @Test
-    public void booking_parallel() {
-        Config config = new Config(100, 20);
-        config.setId(ConfigRepository.ID);
+    public void booking_parallel() throws InterruptedException {
+        saveConfiguration(new ConfigDto(100, 20));
 
-        mongoTemplate.insert(config);
+        ExecutorService executor = Executors.newFixedThreadPool(120);
 
-        //todo
+        LocalDate start1 = LocalDate.of(2018, 1, 1);
+        LocalDate end1 = LocalDate.of(2018,1, 10);
+
+        LocalDate start2 = LocalDate.of(2018, 1, 5);
+        LocalDate end2 = LocalDate.of(2018, 1, 15);
+
+        LocalDate start3 = LocalDate.of(2018, 1, 11);
+        LocalDate end3 = LocalDate.of(2018, 1, 20);
+
+        new Callable<ResponseEntity<Object>>() {
+            @Override
+            public ResponseEntity<Object> call() throws Exception {
+                return makeBooking(new BookingDto("test", "test", start1, end1));
+            }
+        };
+
+        List<Callable<ResponseEntity<Object>>> range = IntStream.range(0, 120).mapToObj(i -> {
+            if(i >= 0 && i < 40) {
+                return new BookingDto("test", "test", start1, end1);
+            } else if (i >= 40 && i < 80) {
+                return new BookingDto("test", "test", start2, end2);
+            } else {
+                return new BookingDto("test", "test", start3, end3);
+            }
+        }).map(bookingDto -> (Callable<ResponseEntity<Object>>) () -> makeBooking(bookingDto)).collect(Collectors.toList());
+
+        executor.invokeAll(range);
+        executor.shutdown();
+        executor.awaitTermination(30, TimeUnit.SECONDS);
+
+        List<Reservation> reservations = mongoTemplate.findAll(Reservation.class);
+
+        assertThat(reservations.size()).
+                as("Reservations count should be equal to range sum")
+                .isEqualTo(20);
+
+        reservations.forEach(reservation -> {
+            LocalDate actual = LocalDate.parse(reservation.getDay(), DateHelper.formatter);
+            if (actual.isBefore(start2) || actual.isAfter(end2)) {
+                assertThat(reservation.getLimit()).isEqualTo(40);
+            } else {
+                assertThat(reservation.getLimit()).isEqualTo(80);
+            }
+        });
     }
 
     @Test
@@ -106,12 +154,12 @@ public class BookingApiTest {
         BookingDto oneDay = new BookingDto("test", "test", LocalDate.now(), LocalDate.now());
 
         for(int i = 0; i < 11; i++ ){
-            assertThat(restTemplate.postForEntity(serviceUrl, oneDay, null).getStatusCode())
+            assertThat(makeBooking(oneDay).getStatusCode())
                     .as("On present config should return 200")
                     .isEqualTo(HttpStatus.OK);
         }
 
-        assertThat(restTemplate.postForEntity(serviceUrl, oneDay, null).getStatusCode())
+        assertThat(makeBooking(oneDay).getStatusCode())
                 .as("On reaching limit should return 400")
                 .isEqualTo(HttpStatus.BAD_REQUEST);
 
@@ -127,6 +175,23 @@ public class BookingApiTest {
                 .isEqualTo(11);
     }
 
+    @Test
+    public void booking_wrongDate_shouldReturn400() {
+        BookingDto bad = new BookingDto("test", "test", LocalDate.of(2018,2,1),
+                LocalDate.of(2018,1,1));
+
+        assertThat(makeBooking(bad).getStatusCode())
+                .isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    public void booking_longDateRange_shouldReturn400() {
+        BookingDto bad = new BookingDto("test", "test", LocalDate.of(2018,1,1),
+                LocalDate.of(2018,2,1));
+
+        assertThat(makeBooking(bad).getStatusCode())
+                .isEqualTo(HttpStatus.BAD_REQUEST);
+    }
 
     @Test
     public void booking_overBookingChange_shouldIncreaseLimit() {
@@ -136,17 +201,17 @@ public class BookingApiTest {
            makeBooking(oneDay); //make booking for 11 times
         }
 
-        assertThat(restTemplate.postForEntity(serviceUrl, oneDay, null).getStatusCode())
+        assertThat(makeBooking(oneDay).getStatusCode())
                 .as("On reaching limit should return 400")
                 .isEqualTo(HttpStatus.BAD_REQUEST);
 
-        restTemplate.postForEntity(configServiceUrl, new ConfigDto(10, 20), null); //increase overbooking
+        saveConfiguration(new ConfigDto(10, 20)); //increase overbooking (12)
 
-        assertThat(restTemplate.postForEntity(serviceUrl, oneDay, null).getStatusCode())
+        assertThat(makeBooking(oneDay).getStatusCode())
                 .as("On present config should return 200")
                 .isEqualTo(HttpStatus.OK); //no more 400 after limit is reached to 12
 
-        assertThat(restTemplate.postForEntity(serviceUrl, oneDay, null).getStatusCode())
+        assertThat(makeBooking(oneDay).getStatusCode())
                 .as("On reaching limit should return 400")
                 .isEqualTo(HttpStatus.BAD_REQUEST); //now limit is reached again
 
@@ -161,7 +226,11 @@ public class BookingApiTest {
                 .isEqualTo(12);
     }
 
-    private void makeBooking(BookingDto bookingDto) {
-        restTemplate.postForEntity(serviceUrl, bookingDto, null);
+    private void saveConfiguration(ConfigDto configDto) {
+        restTemplate.postForEntity(configServiceUrl, configDto, null);
+    }
+
+    private ResponseEntity<Object> makeBooking(BookingDto bookingDto) {
+        return restTemplate.postForEntity(serviceUrl, bookingDto, null);
     }
 }
