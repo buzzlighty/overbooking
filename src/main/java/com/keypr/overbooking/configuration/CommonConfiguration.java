@@ -16,15 +16,18 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class CommonConfiguration {
 
-    @Value("${REDIS_HOST}")
+    @Value("${REDIS_IP}")
     private String redisHost;
+
+    @Value("${REDIS_PORT}")
+    private int redisPort;
 
     @Bean
     public RedissonClient redissonClient() {
         Config config = new Config();
         config.setTransportMode(TransportMode.NIO);
         config.useSingleServer()
-                .setAddress("redis://" + this.redisHost);
+                .setAddress("redis://" + this.redisHost + ":" + this.redisPort);
 
         return Redisson.create(config);
     }

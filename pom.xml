@@ -80,11 +80,18 @@
 				<executions>
 					<execution>
 						<id>default</id>
+						<phase>package</phase>
 						<goals>
 							<goal>build</goal>
-							<goal>push</goal>
 						</goals>
 					</execution>
+                    <execution>
+                        <id>deploy</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>push</goal>
+                        </goals>
+                    </execution>
 				</executions>
 				<configuration>
 					<repository>buzz42/overbooking</repository>
