@@ -14,5 +14,4 @@ public class OverbookingApplication {
 		app.run(args);
 	}
 
-
 }
