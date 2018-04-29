@@ -112,13 +112,6 @@ public class BookingApiTest {
         LocalDate start3 = LocalDate.of(2018, 1, 11);
         LocalDate end3 = LocalDate.of(2018, 1, 20);
 
-        new Callable<ResponseEntity<Object>>() {
-            @Override
-            public ResponseEntity<Object> call() throws Exception {
-                return makeBooking(new BookingDto("test", "test", start1, end1));
-            }
-        };
-
         List<Callable<ResponseEntity<Object>>> range = IntStream.range(0, 120).mapToObj(i -> {
             if(i >= 0 && i < 40) {
                 return new BookingDto("test", "test", start1, end1);
