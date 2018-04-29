@@ -5,7 +5,7 @@
 * [Run API tests](#run-api-tests)
 * [Manual build](#manual-build)
 * [API](#api)
-* [How it works?](#how-it-works?)
+* [How it works?](#how-it-works)
 * [Data store choose explained](#data-store-choose-explained)
   * [MongoDB](#mongodb)
   * [Redis](#redis)
@@ -36,7 +36,7 @@ Run api tests (with embeded mongo & redis)
 mvn test
 ```
 
-# Maunal build
+# Manual build
 To build (including docker container)
 ```
 mvn package
@@ -48,6 +48,7 @@ docker run -p 8080:8080 e MONGO_IP=<mongo_host> -e MONGO_PORT=<mongo_port> -e RE
 
 # API
 Api is available on http://localhost:8080/app/swagger
+
 It is selfdescriptive and proivdes examples. Based on swagger.
 
 # How it works?
@@ -67,10 +68,10 @@ When configuration endpoint is called:
 
 # Data store choose explained
 #### MongoDB
-MongoDB is fast, easy to use, highly scalable database and perfectly suits for such cases. It faster and easier to use then SQL database and provide more partition tolerance with high availability. Especially when there is no need in transcations, because parallel execution is controlled by application (based on dictributed locks)
+MongoDB is fast, easy to use, highly scalable database and perfectly suits for such cases. It faster and easier to use then SQL database and provides partition tolerance with high availability. Especially when there is no need in transactions, because parallel execution is controlled by application (based on distributed locks)
 
 #### Redis
-Redis is used as distributed lock storage, to make Service be scalable and allow to synchronze multiple instances. Basicaly it allows multiple processes of service to work as if it is multiple threads of one process.
+Redis is used as distributed lock storage, to let Service be scalable and allow to synchronze multiple instances. Basicaly it allows multiple processes of service to work as if it is multiple threads of one process.
 
 # TO-DO improvements
 
