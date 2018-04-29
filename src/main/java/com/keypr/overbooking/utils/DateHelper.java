@@ -11,23 +11,28 @@ import java.util.stream.Stream;
  *
  * Simple helper to iterate over date range
  */
-public class DateRange  {
+public class DateHelper {
 
     public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
     private LocalDate startDate;
     private LocalDate endDate;
 
-    private DateRange(){
+    private DateHelper(){
     }
 
     public static Stream<LocalDate> between(LocalDate start, LocalDate end) {
-        DateRange dateRange = new DateRange();
+        DateHelper dateRange = new DateHelper();
         dateRange.startDate = start;
         dateRange.endDate = end;
 
         return dateRange.stream();
     }
+
+    public static boolean after(LocalDate from, LocalDate to) {
+        return to.isEqual(from) || to.isAfter(from);
+    }
+
     private Stream<LocalDate> stream() {
         return Stream.iterate(startDate, d -> d.plusDays(1))
                 .limit(ChronoUnit.DAYS.between(startDate, endDate) + 1);

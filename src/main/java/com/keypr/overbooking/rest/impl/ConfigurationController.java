@@ -1,6 +1,6 @@
 package com.keypr.overbooking.rest.impl;
 
-import com.keypr.overbooking.dto.ConfigurationDto;
+import com.keypr.overbooking.dto.ConfigDto;
 import com.keypr.overbooking.rest.ConfigApi;
 import com.keypr.overbooking.service.ConfigurationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,13 +25,13 @@ public class ConfigurationController implements ConfigApi {
 
     @Override
     @RequestMapping(path = "/configuration", method = RequestMethod.POST)
-    public void configure(@RequestBody @Valid ConfigurationDto configurationDto) {
+    public void configure(@RequestBody @Valid ConfigDto configurationDto) {
         configurationService.saveConfiguration(configurationDto);
     }
 
     @Override
     @RequestMapping(path = "/configuration", method = RequestMethod.GET)
-    public ConfigurationDto configure() {
+    public ConfigDto configure() {
         return configurationService.getConfiguration();
     }
 }

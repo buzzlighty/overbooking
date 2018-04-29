@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.keypr.overbooking.dao.document.Config;
 
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 /**
  * @author Kirill Bazarov (es.kelevra@gmail.com)
@@ -12,22 +13,22 @@ import javax.validation.constraints.Min;
  *
  * Data transfer object for configuration payload
  */
-public class ConfigurationDto {
+public class ConfigDto {
 
-    @Min(0)
+    @Min(0) @NotNull
     private int rooms;
-    @Min(0)
+    @Min(0) @NotNull
     private int overbookingLevel;
 
     @JsonCreator
-    public ConfigurationDto(
+    public ConfigDto(
             @JsonProperty("rooms") int rooms,
             @JsonProperty("overbookingLevel")  int overbookingLevel) {
         this.rooms = rooms;
         this.overbookingLevel = overbookingLevel;
     }
 
-    public ConfigurationDto(Config config) {
+    public ConfigDto(Config config) {
         this.rooms = config.getRooms();
         this.overbookingLevel = config.getOverbooking();
     }
@@ -42,7 +43,7 @@ public class ConfigurationDto {
 
     @Override
     public String toString() {
-        return "ConfigurationDto{" +
+        return "ConfigDto{" +
                 "rooms=" + rooms +
                 ", overbookingLevel=" + overbookingLevel +
                 '}';

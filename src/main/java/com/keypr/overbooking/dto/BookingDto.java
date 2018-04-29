@@ -5,27 +5,32 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 
-import java.util.Date;
+import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
 
 /**
  * @author Kirill Bazarov (es.kelevra@gmail.com)
-  *
+ *
  *
  * Data transfer object for booking payload
  */
 public class BookingDto {
 
+    @NotNull
     private String clientName;
+    @NotNull
     private String clientEmail;
-    private Date arrivalDate;
-    private Date departureDate;
+    @NotNull
+    private LocalDate arrivalDate;
+    @NotNull
+    private LocalDate departureDate;
 
     @JsonCreator
     public BookingDto(
             @JsonProperty("clientName") String clientName,
             @JsonProperty("clientEmail") String clientEmail,
-            @JsonProperty("arrivalDate") @JsonFormat(pattern="dd.MM.yyyy") Date arrivalDate,
-            @JsonProperty("departureDate") @JsonFormat(pattern="dd.MM.yyyy") Date departureDate) {
+            @JsonProperty("arrivalDate") @JsonFormat(pattern="dd.MM.yyyy") LocalDate arrivalDate,
+            @JsonProperty("departureDate") @JsonFormat(pattern="dd.MM.yyyy") LocalDate departureDate) {
         this.clientName = clientName;
         this.clientEmail = clientEmail;
         this.arrivalDate = arrivalDate;
@@ -41,12 +46,12 @@ public class BookingDto {
     }
 
     @ApiModelProperty(example = "10.05.2018")
-    public Date getArrivalDate() {
+    public LocalDate getArrivalDate() {
         return arrivalDate;
     }
 
     @ApiModelProperty(example = "15.05.2018")
-    public Date getDepartureDate() {
+    public LocalDate getDepartureDate() {
         return departureDate;
     }
 

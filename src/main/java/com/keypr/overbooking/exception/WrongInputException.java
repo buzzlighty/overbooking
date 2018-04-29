@@ -4,7 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
- * @author kyrylo.bazarov@avid.com
+ * @author Kirill Bazarov (es.kelevra@gmail.com)
  */
 @ResponseStatus(HttpStatus.BAD_REQUEST)
 public class WrongInputException extends RuntimeException {

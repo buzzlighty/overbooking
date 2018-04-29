@@ -2,7 +2,7 @@ package com.keypr.overbooking.service.impl;
 
 import com.keypr.overbooking.dao.ConfigRepository;
 import com.keypr.overbooking.dao.document.Config;
-import com.keypr.overbooking.dto.ConfigurationDto;
+import com.keypr.overbooking.dto.ConfigDto;
 import com.keypr.overbooking.exception.MissingConfigurationException;
 import com.keypr.overbooking.lock.ConfigurationLockProvider;
 import com.keypr.overbooking.service.ConfigurationService;
@@ -31,7 +31,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
      *
      */
     @Override
-    public void saveConfiguration(ConfigurationDto configurationDto) {
+    public void saveConfiguration(ConfigDto configurationDto) {
         Config config = new Config(configurationDto.getRooms(), configurationDto.getOverbookingLevel());
 
         config.setId(ConfigRepository.ID);
@@ -48,7 +48,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
 
     @Override
-    public ConfigurationDto getConfiguration() {
+    public ConfigDto getConfiguration() {
 
         Lock lock = configurationLockProvider.getConfigurationLock().readLock();
         try {
@@ -56,7 +56,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
             Config config = configRepository.findById(ConfigRepository.ID).orElseThrow(MissingConfigurationException::new);
 
-            return new ConfigurationDto(config.getRooms(), config.getOverbooking());
+            return new ConfigDto(config.getRooms(), config.getOverbooking());
         } finally {
             lock.unlock();
         }

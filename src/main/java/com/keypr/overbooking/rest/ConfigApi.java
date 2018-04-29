@@ -1,12 +1,12 @@
 package com.keypr.overbooking.rest;
 
-import com.keypr.overbooking.dto.ConfigurationDto;
+import com.keypr.overbooking.dto.ConfigDto;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
 /**
- * @author kyrylo.bazarov@avid.com
+ * @author Kirill Bazarov (es.kelevra@gmail.com)
  */
 public interface ConfigApi {
 
@@ -14,12 +14,12 @@ public interface ConfigApi {
     @ApiResponses({
             @ApiResponse(code = 200, message = "Configuration has been saved")
     })
-    void configure(ConfigurationDto configurationDto);
+    void configure(ConfigDto configurationDto);
 
     @ApiOperation(value = "Get configuration", tags = "Configuration")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = ConfigurationDto.class),
+            @ApiResponse(code = 200, message = "OK", response = ConfigDto.class),
             @ApiResponse(code = 404, message = "If configuration is missing")
     })
-    ConfigurationDto configure();
+    ConfigDto configure();
 }

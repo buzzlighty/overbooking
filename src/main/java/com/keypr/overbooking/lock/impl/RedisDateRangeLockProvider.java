@@ -1,7 +1,7 @@
 package com.keypr.overbooking.lock.impl;
 
 import com.keypr.overbooking.lock.DateRangeLockProvider;
-import com.keypr.overbooking.utils.DateRange;
+import com.keypr.overbooking.utils.DateHelper;
 import org.redisson.RedissonMultiLock;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
@@ -30,8 +30,8 @@ public class RedisDateRangeLockProvider implements DateRangeLockProvider {
      */
     @Override
     public Lock getDateRangeLock(LocalDate from, LocalDate to) {
-        RLock[] locks = DateRange.between(from, to)
-                .map(localDate -> DateRange.formatter.format(localDate))
+        RLock[] locks = DateHelper.between(from, to)
+                .map(localDate -> DateHelper.formatter.format(localDate))
                 .map(day -> redisson.getLock(day))
                 .toArray(RLock[]::new);
 

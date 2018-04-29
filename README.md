@@ -79,3 +79,4 @@ Redis is used as distributed lock storage, to make Service be scalable and allow
 3. add indexes for days collections for faster search
 4. add TTLs for days to clean-up automatically
 5. add TTLs for locks in REDIS to clean-up automatically
+6. run tests in another docker container

@@ -9,7 +9,7 @@ import io.swagger.annotations.ApiResponses;
 import java.util.List;
 
 /**
- * @author kyrylo.bazarov@avid.com
+ * @author Kirill Bazarov (es.kelevra@gmail.com)
  */
 public interface BookingApi {
 

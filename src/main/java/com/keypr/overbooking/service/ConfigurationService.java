@@ -1,6 +1,6 @@
 package com.keypr.overbooking.service;
 
-import com.keypr.overbooking.dto.ConfigurationDto;
+import com.keypr.overbooking.dto.ConfigDto;
 
 /**
  * @author Kirill Bazarov (es.kelevra@gmail.com)
@@ -13,12 +13,12 @@ public interface ConfigurationService {
      * Saves configuration
      *
      */
-    void saveConfiguration(ConfigurationDto dto);
+    void saveConfiguration(ConfigDto dto);
 
 
     /**
      * Returns saved configuration
      * @return
      */
-    ConfigurationDto getConfiguration();
+    ConfigDto getConfiguration();
 }

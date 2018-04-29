@@ -10,14 +10,14 @@ import com.keypr.overbooking.exception.ReservationLimitReachedException;
 import com.keypr.overbooking.lock.ConfigurationLockProvider;
 import com.keypr.overbooking.lock.DateRangeLockProvider;
 import com.keypr.overbooking.service.BookingService;
-import com.keypr.overbooking.utils.DateRange;
+import com.keypr.overbooking.utils.DateHelper;
+import com.mongodb.Mongo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 
@@ -44,6 +44,9 @@ public class BookingServiceImpl implements BookingService {
     @Autowired
     private ConfigRepository configRepository;
 
+    @Autowired
+    private MongoTemplate mongoTemplate;
+
     /**
      *
      * Gets lock for all days
@@ -53,8 +56,8 @@ public class BookingServiceImpl implements BookingService {
      */
     @Override
     public void createBooking(BookingDto bookingDto) {
-        LocalDate from = toLocalDate(bookingDto.getArrivalDate());
-        LocalDate to = toLocalDate(bookingDto.getDepartureDate());
+        LocalDate from = bookingDto.getArrivalDate();
+        LocalDate to = bookingDto.getDepartureDate();
 
         Lock lock = dateRangeLockProvider.getDateRangeLock(from, to);
         Lock configLock = configurationLockProvider.getConfigurationLock().readLock();
@@ -63,8 +66,8 @@ public class BookingServiceImpl implements BookingService {
             configLock.lock();
             lock.lock();
 
-            String[] days = DateRange.between(from, to)
-                    .map(localDate -> DateRange.formatter.format(localDate))
+            String[] days = DateHelper.between(from, to)
+                    .map(localDate -> DateHelper.formatter.format(localDate))
                     .toArray(String[]::new);
 
             Config config = configRepository.findById(ConfigRepository.ID)
@@ -86,9 +89,5 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<Reservation> getAllBookings() {
         return reservationDao.findAll();
-    }
-
-    private LocalDate toLocalDate(Date date) {
-        return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     }
 }
