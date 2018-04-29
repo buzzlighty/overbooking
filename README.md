@@ -29,13 +29,12 @@ Access Swagger API on http://localhost:8080/app/swagger
 
 # Run API tests
 
-Compose should be started.
+
+Run api tests (with embeded mongo & redis)
 
 ```
-mvn -P apiTests package
-docker run overbooking_api_tests
+mvn test
 ```
-
 
 # Maunal build
 To build (including docker container)
